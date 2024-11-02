@@ -77,6 +77,8 @@ void restore_hp(){
     player_s.lives-=1;
     player_s.health=100;
 
+    lose(player_s);
+
     system("cls");
     cout << "#####################################\n";
     cout << "# You've lost one life. " << player_s.lives << " remaining #\n";
@@ -117,7 +119,6 @@ void lose_hp(int i, int j, char movement, char game[][40]){
 
                 if(player_s.health<=0){
                     restore_hp();
-                    lose(player_s);
                 }
                 else{
                 system("cls");
@@ -134,6 +135,48 @@ void lose_hp(int i, int j, char movement, char game[][40]){
                 cout<<"##########################\n";
                 getchar(); 
 
+                }
+            }
+        }
+}
+
+void monster_mov(int player_i, int player_j, char game[][40]){
+    int i,j;
+        for(i=0; i<20; i++){
+            for(j=0; j<40; j++){
+                if((game[i][j]=='M')||game[i][j]=='m'){
+
+                    char type = game[i][j];
+                    game[i][j] = ' ';
+                    int direction = rand()%4;
+
+                    switch(direction){
+                        case 0:
+                        if(i>0 && game[i-1][j]!='#'){i=i-1;}
+                        break;
+                        case 1:
+                        if(i<19 && game[i+1][j]!='#'){i=i+1;}
+                        break;
+                        case 2:
+                        if(j>0 && game[i][j-1]!='#'){j=j-1;}
+                        break;
+                        case 3:
+                        if(j<39 && game[i][j+1]!='#'){j=j+1;}
+                        break;
+                    }
+
+                    if(i==player_i && j==player_j){
+                        char movement = ' ';
+                        if(i>player_i){movement='D';}
+                        else if(i<player_i){movement='U';}
+                        else if(j<player_j){movement='L';}
+                        else if(j>player_j){movement='R';}
+                        lose_hp(i,j,movement,game);
+                    }
+                    else if(game[i][j]=='H'){
+                        game[i][j]=type;
+                    }
+                    else{game[i][j]=type;}
                 }
             }
         }
@@ -208,6 +251,7 @@ int main(){
     char Chest = 'C';
     char Player = 'P';
     char Potion = 'H';
+    int player_i, player_j;
 
     srand(time(0));
 
@@ -218,6 +262,18 @@ int main(){
         cout<<"Type your movement: ";cin>>Movement;
         Movement=toupper(Movement);
         mov(Movement, game);
+
+        for(int i=0; i<20; i++){
+            for(int j=0; j<40; j++){
+                if(game[i][j]=='P'){
+                    player_i = i;
+                    player_j = j;
+                    break;
+                }
+            }
+        }
+
+        monster_mov(player_i, player_j, game);
         system("cls");
     }while(Movement!='X');
 }
