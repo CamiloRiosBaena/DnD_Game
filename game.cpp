@@ -94,23 +94,11 @@ void restore_hp(){
      getchar();
 }
 
-void lose_hp(int i, int j, char movement, char game[][40]){
+void lose_hp(char type){
     int hp_lost=0;
 
-    if((movement=='R' && j<39 && game[i][j+1]=='M')||
-       (movement=='L' && j>0 && game[i][j-1]=='M')||
-       (movement=='U' && i>0 && game[i-1][j]=='M')||
-       (movement=='D' && i<19 && game[i+1][j]=='M')){
-
-        hp_lost=50;
-       }
-    else if((movement=='R' && j<39 && game[i][j+1]=='m')||
-       (movement=='L' && j>0 && game[i][j-1]=='m')||
-       (movement=='U' && i>0 && game[i-1][j]=='m')||
-       (movement=='D' && i<19 && game[i+1][j]=='m')){
-
-        hp_lost=25;
-       }
+    if(type == 'M'){hp_lost=50;}
+    else if(type == 'm'){hp_lost=25;}
 
        if(hp_lost>0){
             if(player_s.health>0){
@@ -147,47 +135,61 @@ void monster_mov(int player_i, int player_j, char game[][40]){
                 if((game[i][j]=='M')||game[i][j]=='m'){
 
                     char type = game[i][j];
+                    int new_i = i;
+                    int new_j = j;
                     game[i][j] = ' ';
                     int direction = rand()%4;
 
                     switch(direction){
                         case 0:
-                        if(i>0 && game[i-1][j]!='#'){i=i-1;}
+                        if(i>0 && game[i-1][j]!='#'){new_i--;}
                         break;
                         case 1:
-                        if(i<19 && game[i+1][j]!='#'){i=i+1;}
+                        if(i<19 && game[i+1][j]!='#'){new_i++;}
                         break;
                         case 2:
-                        if(j>0 && game[i][j-1]!='#'){j=j-1;}
+                        if(j>0 && game[i][j-1]!='#'){new_j--;}
                         break;
                         case 3:
-                        if(j<39 && game[i][j+1]!='#'){j=j+1;}
+                        if(j<39 && game[i][j+1]!='#'){new_j++;}
                         break;
                     }
 
-                    if(i==player_i && j==player_j){
-                        char movement = ' ';
-                        if(i>player_i){movement='D';}
-                        else if(i<player_i){movement='U';}
-                        else if(j<player_j){movement='L';}
-                        else if(j>player_j){movement='R';}
-                        lose_hp(i,j,movement,game);
+                    if(new_i==player_i && new_j==player_j){
+                        game[new_i][new_j]='P';
+                        lose_hp(type);
                     }
-                    else if(game[i][j]=='H'){
+                    else if(game[new_i][new_j]=='H'){
                         game[i][j]=type;
                     }
-                    else{game[i][j]=type;}
+                    else if(game[new_i][new_j]=='C'){
+                        game[i][j]=type;
+                    }
+                    else if((game[new_i][new_j]=='M')||(game[new_i][new_j]=='m')){
+                        game[i][j]=type;
+                    }
+                    else{game[new_i][new_j]=type;}
                 }
             }
         }
 }
 
+void monster_col(){
+
+}
+
 void mov(char movement, char game[][40]){
     int i,j;
+    char type = ' ';
     for(i=0;i<20;i++){
         for(j=0;j<40;j++){
             if(game[i][j]=='P'){
-                lose_hp(i,j,movement, game);
+                if(movement == 'R' && j < 39 && (game[i][j+1] == 'M' || game[i][j+1] == 'm')){type = game[i][j+1];}
+                else if(movement == 'L' && j > 0 && (game[i][j-1] == 'M' || game[i][j-1] == 'm')){type = game[i][j-1];}
+                else if(movement == 'U' && i > 0 && (game[i-1][j] == 'M' || game[i-1][j] == 'm')){type = game[i-1][j];}
+                else if(movement == 'D' && i < 19 && (game[i+1][j] == 'M' || game[i+1][j] == 'm')){type = game[i+1][j];}
+
+                lose_hp(type);
                 win_hp(i,j,movement,game);
                 win(i,j,movement, game);
 
