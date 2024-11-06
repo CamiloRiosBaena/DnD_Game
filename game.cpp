@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
@@ -11,6 +12,15 @@ struct Player{
 };
 
 Player player_s;
+
+void read(){
+    ifstream stats("info.txt");
+    string line;
+
+    while(getline(stats,line)){
+        cout<<line<<endl;
+    }  
+}
 
 void win(int i, int j, char movement, char game[][40]){
     if((movement=='R' && j<39 && game[i][j+1]=='C')||
@@ -245,6 +255,41 @@ void print(char game[][40]){
     }
 }
 
+void first_opt(char Movement, int player_i, int player_j, char game[][40]){
+        do{
+            print(game);
+            cout<<"Type your movement: ";cin>>Movement;
+            Movement=toupper(Movement);
+            mov(Movement, game);
+
+            for(int i=0; i<20; i++){
+                for(int j=0; j<40; j++){
+                    if(game[i][j]=='P'){
+                        player_i = i;
+                        player_j = j;
+                        break;
+                    }
+                }
+            }
+
+            monster_mov(player_i, player_j, game);
+            system("cls");
+        }while(Movement!='X');
+}
+
+void menu(){
+    cout<<"#############################\n";
+    cout<<"#                           #\n";
+    cout<<"#           DnD game        #\n";
+    cout<<"#                           #\n";
+    cout<<"#         1.New game        #\n";
+    cout<<"#         2.Load game       #\n";
+    cout<<"#         3.Stats           #\n";
+    cout<<"#         4.Exit            #\n";
+    cout<<"#                           #\n";
+    cout<<"#############################\n";
+}
+
 int main(){
     char game[20][40];
     char Movement;
@@ -253,29 +298,37 @@ int main(){
     char Chest = 'C';
     char Player = 'P';
     char Potion = 'H';
-    int player_i, player_j;
+    int player_i, player_j, opt;
 
     srand(time(0));
 
-    game_f(Monster_b, Monster_s, Chest, Player, Potion, game);
+    menu();
+    cin>>opt;
 
-    do{
-        print(game);
-        cout<<"Type your movement: ";cin>>Movement;
-        Movement=toupper(Movement);
-        mov(Movement, game);
-
-        for(int i=0; i<20; i++){
-            for(int j=0; j<40; j++){
-                if(game[i][j]=='P'){
-                    player_i = i;
-                    player_j = j;
-                    break;
-                }
-            }
-        }
-
-        monster_mov(player_i, player_j, game);
+    switch(opt){
+        case 1:
         system("cls");
-    }while(Movement!='X');
+        game_f(Monster_b, Monster_s, Chest, Player, Potion, game);
+        first_opt(Movement,player_i,player_j,game);
+        break;
+
+        case 2:
+        cout<<"hola";
+        break;
+
+        case 3:
+        read();
+        break;
+
+        case 4:
+        cout<<"Goodbye traveler, see you soon.";
+        cin.ignore();
+        getchar();
+        exit(0);
+        break;
+
+        default:
+        cout<<"Invalid option";
+        break;
+    }
 }
