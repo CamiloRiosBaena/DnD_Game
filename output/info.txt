@@ -1,3 +1,2 @@
-Time in game: 100h
-Deaths: 20 
-Wins: 3
+health 100
+lives  1

@@ -1,0 +1,2 @@
+Wins: 1
+Loses: 0

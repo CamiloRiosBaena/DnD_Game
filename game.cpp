@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -11,10 +12,15 @@ struct Player{
     int health=100;
 };
 
+int win_s=0;
+int lose_s=0;
+
 Player player_s;
 
-void read(){
-    ifstream stats("info.txt");
+void save_s();
+
+void read_s(){
+    ifstream stats("stats.txt");
     string line;
 
     while(getline(stats,line)){
@@ -22,11 +28,52 @@ void read(){
     }  
 }
 
+void load_m(char sv_game[][40]){
+    ifstream load("map.txt");
+    string line;
+    int i=0;
+
+    while(getline(load,line) && i<20){
+        int leng = line.length();
+        for(int j=0; j<40 && j<leng; j++){
+            sv_game[i][j]=line[j];
+        }
+        i++;
+    }  
+
+    load.close();
+}
+
+void load_i(){
+    ifstream load("info.txt");
+    string line;
+
+    while(getline(load,line)){
+        stringstream ss(line);
+        string type;
+        int value;
+        
+        ss>>type>>value;
+
+        if(type=="health"){
+            player_s.health=value;
+        }
+        if(type=="lives"){
+            player_s.lives=value;
+        }
+    }
+
+    load.close();
+}
+
 void win(int i, int j, char movement, char game[][40]){
     if((movement=='R' && j<39 && game[i][j+1]=='C')||
        (movement=='L' && j>0 && game[i][j-1]=='C')||
        (movement=='U' && i>0 && game[i-1][j]=='C')||
        (movement=='D' && i<19 && game[i+1][j]=='C')){
+
+            win_s+=1;
+            save_s();
             system("cls");
              cout<<"############\n";
              cout<<"# You win  #\n";
@@ -41,6 +88,8 @@ void win(int i, int j, char movement, char game[][40]){
 void lose(Player loser){
     if(loser.lives==0){
 
+        lose_s+=1;
+        save_s();
         system("cls");
         cout<<"###########################\n";
         cout<<"# No more lives remaining #\n";
@@ -255,7 +304,72 @@ void print(char game[][40]){
     }
 }
 
-void first_opt(char Movement, int player_i, int player_j, char game[][40]){
+void save_f(char game[][40]){
+    ofstream save;
+    save.open("map.txt");
+    for(int i=0;i<20;i++){
+        string line;
+        for(int j=0; j<40; j++){
+            line+=game[i][j];
+        }
+        save<<line<<"\n";
+    }
+
+    save.close();
+}
+
+void save_i(){
+    ofstream save;
+    save.open("info.txt");
+
+    save<<"health"<<" "<<player_s.health<<endl;
+    save<<"lives"<<"  "<<player_s.lives;
+}
+
+void save_s(){
+    ofstream save;
+    save.open("stats.txt");
+
+    save<<"Wins: "<<win_s<<endl;
+    save<<"Loses: "<<lose_s;
+}
+
+void options(char game[][40]){
+    int opt;
+    system("cls");
+    cout<<"####################\n";
+    cout<<"# 1. Save and exit #\n";
+    cout<<"# 2. Save          #\n";
+    cout<<"# 3. Back          #\n";
+    cout<<"####################\n";
+
+    cin>>opt;
+
+    switch(opt){
+        case 1:
+        save_f(game);
+        save_i();
+        cout<<"Goodbye traveler, see you soon";
+        cin.ignore();
+        getchar();
+        exit(0);
+        break;
+
+        case 2:
+        save_f(game);
+        save_i();
+        cout<<"###################################\n";
+        cout<<"# Your game was succesfully saved #\n";
+        cout<<"###################################\n";
+        cin.ignore();
+        getchar();
+        break;
+    }
+}
+
+void first_opt(char game[][40]){
+        char Movement;
+        int player_i, player_j;
         do{
             print(game);
             cout<<"Type your movement: ";cin>>Movement;
@@ -270,6 +384,10 @@ void first_opt(char Movement, int player_i, int player_j, char game[][40]){
                         break;
                     }
                 }
+            }
+
+            if (Movement=='O'){
+                options(game);
             }
 
             monster_mov(player_i, player_j, game);
@@ -292,13 +410,12 @@ void menu(){
 
 int main(){
     char game[20][40];
-    char Movement;
     char Monster_b = 'M';
     char Monster_s = 'm';
     char Chest = 'C';
     char Player = 'P';
     char Potion = 'H';
-    int player_i, player_j, opt;
+    int opt;
 
     srand(time(0));
 
@@ -309,15 +426,20 @@ int main(){
         case 1:
         system("cls");
         game_f(Monster_b, Monster_s, Chest, Player, Potion, game);
-        first_opt(Movement,player_i,player_j,game);
+        first_opt(game);
         break;
 
         case 2:
-        cout<<"hola";
+        char sv_game[20][40];
+        system("cls");
+        load_m(sv_game);
+        load_i();
+        first_opt(sv_game);
         break;
 
         case 3:
-        read();
+        system("cls");
+        read_s();
         break;
 
         case 4:
