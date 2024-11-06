@@ -28,6 +28,29 @@ void read_s(){
     }  
 }
 
+void load_s(){
+    ifstream load;
+    load.open("stats.txt");
+    string line;
+
+     while(getline(load,line)){
+        stringstream ss(line);
+        string type;
+        int value;
+        
+        ss>>type>>value;
+
+        if(type=="Wins"){
+            win_s=value;
+        }
+        if(type=="Loses"){
+            lose_s=value;
+        }
+    }
+
+    load.close();
+}
+
 void load_m(char sv_game[][40]){
     ifstream load("map.txt");
     string line;
@@ -332,6 +355,8 @@ void save_s(){
 
     save<<"Wins: "<<win_s<<endl;
     save<<"Loses: "<<lose_s;
+
+    save.close();
 }
 
 void options(char game[][40]){
@@ -395,6 +420,57 @@ void first_opt(char game[][40]){
         }while(Movement!='X');
 }
 
+void history(){
+    cout<<"###################################\n";
+    cout<<"# -One day the monsters attacked- #\n";
+    cout<<"#                                 #\n";
+    cout<<"#     m          MMM         m    #\n";
+    cout<<"#             MM     MM           #\n";
+    cout<<"#   m       M          M          #\n";
+    cout<<"#       m   M     P    M     m    #\n";
+    cout<<"#           M          M    m     #\n";
+    cout<<"#      m      MM     MM           #\n";
+    cout<<"#                MMM          m   #\n";
+    cout<<"###################################\n";
+    cin.ignore();
+    getchar();
+    system("cls");
+
+    cout<<"#######################################################################\n";
+    cout<<"# -You as the last of your kind, had to look out for the magic chest- #\n";
+    cout<<"# -in order to revive all of your kind and to vanish the monsters-    #\n";
+    cout<<"#                                                                     #\n";
+    cout<<"#                                                                     #\n";
+    cout<<"#                                           GGG                       #\n";
+    cout<<"#                                         G     G                     #\n";
+    cout<<"#                      P _________________   C  G                     #\n";
+    cout<<"#                                         G     G                     #\n";
+    cout<<"#                                           GGG                       #\n";
+    cout<<"#                                                                     #\n";
+    cout<<"#######################################################################\n";
+    getchar();
+    system("cls");
+
+    cout<<"#######################################################\n";
+    cout<<"# -Be cautious on your steps, monsters can be tricky- #\n";
+    cout<<"# -they may attack you twice in a row so be careful-  #\n";
+    cout<<"#######################################################\n";
+    getchar();
+    system("cls");
+
+    cout<<"#####################\n";
+    cout<<"# -R to move right- #\n";
+    cout<<"# -L to move left-  #\n";
+    cout<<"# -U to move up-    #\n";
+    cout<<"# -D to moce down-  #\n";
+    cout<<"#                   #\n";
+    cout<<"# -X to exit-       #\n";
+    cout<<"# -O to options-    #\n";
+    cout<<"#####################\n";
+    getchar();
+    system("cls");
+}
+
 void menu(){
     cout<<"#############################\n";
     cout<<"#                           #\n";
@@ -416,7 +492,8 @@ int main(){
     char Player = 'P';
     char Potion = 'H';
     int opt;
-
+    
+    load_s();
     srand(time(0));
 
     menu();
@@ -425,6 +502,7 @@ int main(){
     switch(opt){
         case 1:
         system("cls");
+        history();
         game_f(Monster_b, Monster_s, Chest, Player, Potion, game);
         first_opt(game);
         break;

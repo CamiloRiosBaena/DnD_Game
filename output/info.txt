@@ -1,2 +1,2 @@
-health 100
-lives  1
+health 50
+lives  2
