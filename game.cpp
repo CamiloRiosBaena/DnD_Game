@@ -29,8 +29,7 @@ void read_s(){
 }
 
 void load_s(){
-    ifstream load;
-    load.open("stats.txt");
+    ifstream load("stats.txt");
     string line;
 
      while(getline(load,line)){
@@ -40,10 +39,10 @@ void load_s(){
         
         ss>>type>>value;
 
-        if(type=="Wins"){
+        if(type=="Wins:"){
             win_s=value;
         }
-        if(type=="Loses"){
+        else if(type=="Loses:"){
             lose_s=value;
         }
     }
@@ -95,7 +94,7 @@ void win(int i, int j, char movement, char game[][40]){
        (movement=='U' && i>0 && game[i-1][j]=='C')||
        (movement=='D' && i<19 && game[i+1][j]=='C')){
 
-            win_s+=1;
+            win_s++;
             save_s();
             system("cls");
              cout<<"############\n";
@@ -111,7 +110,7 @@ void win(int i, int j, char movement, char game[][40]){
 void lose(Player loser){
     if(loser.lives==0){
 
-        lose_s+=1;
+        lose_s++;
         save_s();
         system("cls");
         cout<<"###########################\n";
@@ -451,6 +450,20 @@ void history(){
     getchar();
     system("cls");
 
+    cout<<"#####################################################################\n";
+    cout<<"# -On your journey you will find healing potionts that will restor- #\n";
+    cout<<"# -Hp,but you can also take them without needing them, and that-    #\n";
+    cout<<"# -and that would trully be a shame-                                #\n";
+    cout<<"#                                                                   #\n";
+    cout<<"#                                      H                            #\n";
+    cout<<"#                 P                      H                          #\n";
+    cout<<"#                                    H                              #\n";
+    cout<<"#                                        H                          #\n";
+    cout<<"#                                                                   #\n";
+    cout<<"#####################################################################\n";
+    getchar();
+    system("cls");
+
     cout<<"#######################################################\n";
     cout<<"# -Be cautious on your steps, monsters can be tricky- #\n";
     cout<<"# -they may attack you twice in a row so be careful-  #\n";
@@ -462,7 +475,7 @@ void history(){
     cout<<"# -R to move right- #\n";
     cout<<"# -L to move left-  #\n";
     cout<<"# -U to move up-    #\n";
-    cout<<"# -D to moce down-  #\n";
+    cout<<"# -D to move down-  #\n";
     cout<<"#                   #\n";
     cout<<"# -X to exit-       #\n";
     cout<<"# -O to options-    #\n";
