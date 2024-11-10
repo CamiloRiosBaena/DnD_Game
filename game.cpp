@@ -14,10 +14,22 @@ struct Player{
 
 int win_s=0;
 int lose_s=0;
+int point=0;
+int cnt_mv=0;
+char Monster_b = 'M';
+char Monster_s = 'm';
+char Chest = 'C';
+char Player_p = 'P';
+char Potion = 'H';
+int mode=0;
 
 Player player_s;
 
 void save_s();
+void menu();
+void arcade();
+void function_gm();
+void game_f(char mon_b, char mon_s, char chest, char player, char potion, char game[][40]);
 
 void read_s(){
     ifstream stats("stats.txt");
@@ -89,22 +101,63 @@ void load_i(){
 }
 
 void win(int i, int j, char movement, char game[][40]){
+    int opt;
     if((movement=='R' && j<39 && game[i][j+1]=='C')||
        (movement=='L' && j>0 && game[i][j-1]=='C')||
        (movement=='U' && i>0 && game[i-1][j]=='C')||
        (movement=='D' && i<19 && game[i+1][j]=='C')){
 
+        if(mode==1){
             win_s++;
             save_s();
             system("cls");
              cout<<"############\n";
              cout<<"# You win  #\n";
              cout<<"############\n";
-             cout<<"Press enter to exit...";
              cin.ignore();
              getchar();
-             exit(0);
-       }
+
+             while(true){
+                system("cls");
+                cout<<"############################\n";
+                cout<<"# Do you want to continue? #\n";
+                cout<<"# 1. Go back to the menu   #\n";
+                cout<<"# 2. Exit.                 #\n";
+                cout<<"############################\n";
+                cin>>opt;
+                    if(opt==2){
+                        cout<<"Goodbye traveler, see you soon.";
+                        getchar();
+                        exit(0);
+                    }
+                    else if(opt==1){
+                        cout<<"Going back";
+                        system("cls");
+                        menu();
+                        break;
+                    }
+                    else{
+                        system("cls");
+                        cout<<"##################\n";
+                        cout<<"# Invalid option #\n";
+                        cout<<"##################\n";
+                        getchar();
+                    }
+             }
+        }
+        else if(mode==2){
+            if(cnt_mv<=10){point+=1000;}
+            else{point+=300;}
+            cnt_mv=0;
+            cout<<"Your score: "<<point<<"\n";
+            cout<<"Starting new round";
+            cin.ignore();
+            getchar();
+            system("cls");
+            function_gm();
+        }
+
+    }
 }
 
 void lose(Player loser){
@@ -255,10 +308,6 @@ void monster_mov(int player_i, int player_j, char game[][40]){
         }
 }
 
-void monster_col(){
-
-}
-
 void mov(char movement, char game[][40]){
     int i,j;
     char type = ' ';
@@ -270,6 +319,8 @@ void mov(char movement, char game[][40]){
                 else if(movement == 'U' && i > 0 && (game[i-1][j] == 'M' || game[i-1][j] == 'm')){type = game[i-1][j];}
                 else if(movement == 'D' && i < 19 && (game[i+1][j] == 'M' || game[i+1][j] == 'm')){type = game[i+1][j];}
 
+                point+=10;
+                cnt_mv++;
                 lose_hp(type);
                 win_hp(i,j,movement,game);
                 win(i,j,movement, game);
@@ -346,6 +397,8 @@ void save_i(){
 
     save<<"health"<<" "<<player_s.health<<endl;
     save<<"lives"<<"  "<<player_s.lives;
+
+    save.close();
 }
 
 void save_s(){
@@ -394,7 +447,7 @@ void options(char game[][40]){
 void first_opt(char game[][40]){
         char Movement;
         int player_i, player_j;
-        do{
+        while(true){
             print(game);
             cout<<"Type your movement: ";cin>>Movement;
             Movement=toupper(Movement);
@@ -413,10 +466,14 @@ void first_opt(char game[][40]){
             if (Movement=='O'){
                 options(game);
             }
+            if (Movement=='X'){
+                system("cls");
+                menu();
+            }
 
             monster_mov(player_i, player_j, game);
             system("cls");
-        }while(Movement!='X');
+        };
 }
 
 void history(){
@@ -477,7 +534,7 @@ void history(){
     cout<<"# -U to move up-    #\n";
     cout<<"# -D to move down-  #\n";
     cout<<"#                   #\n";
-    cout<<"# -X to exit-       #\n";
+    cout<<"# -X main menu-     #\n";
     cout<<"# -O to options-    #\n";
     cout<<"#####################\n";
     getchar();
@@ -485,6 +542,8 @@ void history(){
 }
 
 void menu(){
+    int opt;
+
     cout<<"#############################\n";
     cout<<"#                           #\n";
     cout<<"#           DnD game        #\n";
@@ -495,53 +554,75 @@ void menu(){
     cout<<"#         4.Exit            #\n";
     cout<<"#                           #\n";
     cout<<"#############################\n";
+    cin>>opt;
+
+        do{
+
+            switch(opt){
+            case 1:
+                system("cls");
+                cout<<"###################\n";
+                cout<<"# 1. History mode #\n";
+                cout<<"# 2. Arcade mode  #\n";
+                cout<<"###################\n";
+                cin>>mode;
+
+                if(mode==1){
+                    history();
+                    function_gm();
+                }
+                else if(mode==2){
+                    arcade();
+                }
+                
+            break;
+
+            case 2:
+                char sv_game[20][40];
+                system("cls");
+                load_m(sv_game);
+                load_i();
+                first_opt(sv_game);
+            break;
+
+            case 3:
+                system("cls");
+                read_s();
+                system("pause");
+            break;
+
+            case 4:
+                cout<<"Goodbye traveler, see you soon.";
+                cin.ignore();
+                getchar();
+                exit(0);
+            break;
+
+            default:
+                cout<<"Invalid option";
+            break;
+        }
+        system("cls");
+    }while(opt!=4);
+}
+
+void arcade(){
+    do{
+        system("cls");
+        function_gm();
+    }while(player_s.lives>0);
+}
+
+void function_gm(){
+    char game[20][40];
+    game_f(Monster_b, Monster_s, Chest, Player_p, Potion, game);
+    first_opt(game);
 }
 
 int main(){
-    char game[20][40];
-    char Monster_b = 'M';
-    char Monster_s = 'm';
-    char Chest = 'C';
-    char Player = 'P';
-    char Potion = 'H';
-    int opt;
-    
+
     load_s();
     srand(time(0));
-
     menu();
-    cin>>opt;
 
-    switch(opt){
-        case 1:
-        system("cls");
-        history();
-        game_f(Monster_b, Monster_s, Chest, Player, Potion, game);
-        first_opt(game);
-        break;
-
-        case 2:
-        char sv_game[20][40];
-        system("cls");
-        load_m(sv_game);
-        load_i();
-        first_opt(sv_game);
-        break;
-
-        case 3:
-        system("cls");
-        read_s();
-        break;
-
-        case 4:
-        cout<<"Goodbye traveler, see you soon.";
-        cin.ignore();
-        getchar();
-        exit(0);
-        break;
-
-        default:
-        cout<<"Invalid option";
-        break;
-    }
 }

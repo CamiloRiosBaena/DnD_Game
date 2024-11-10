@@ -1,2 +1,2 @@
-health 50
+health 75
 lives  2
