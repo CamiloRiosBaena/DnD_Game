@@ -15,6 +15,7 @@ struct Player{
 int win_s=0;
 int lose_s=0;
 int point=0;
+int temp_s=0;;
 int cnt_mv=0;
 char Monster_b = 'M';
 char Monster_s = 'm';
@@ -30,6 +31,40 @@ void menu();
 void arcade();
 void function_gm();
 void game_f(char mon_b, char mon_s, char chest, char player, char potion, char game[][40]);
+
+void exit_m(){
+    int opt;
+    
+    while(true){
+        system("cls");
+        cout<<"############################\n";
+        cout<<"# Do you want to continue? #\n";
+        cout<<"# 1. Go back to the menu   #\n";
+        cout<<"# 2. Exit.                 #\n";
+        cout<<"############################\n";
+        cin>>opt;
+
+        if(opt==2){
+            cout<<"Goodbye traveler, see you soon.";
+            getchar();
+            exit(0);
+        }
+        else if(opt==1){
+            system("cls");
+            cout<<"Going back\n";
+            system("pause");
+            menu();
+            break;
+        }
+        else{
+            system("cls");
+            cout<<"##################\n";
+            cout<<"# Invalid option #\n";
+            cout<<"##################\n";
+            getchar();
+        }
+    }
+}
 
 void read_s(){
     ifstream stats("stats.txt");
@@ -56,6 +91,9 @@ void load_s(){
         }
         else if(type=="Loses:"){
             lose_s=value;
+        }
+        else if(type=="MAX:"){
+            temp_s=value;
         }
     }
 
@@ -101,7 +139,7 @@ void load_i(){
 }
 
 void win(int i, int j, char movement, char game[][40]){
-    int opt;
+    
     if((movement=='R' && j<39 && game[i][j+1]=='C')||
        (movement=='L' && j>0 && game[i][j-1]=='C')||
        (movement=='U' && i>0 && game[i-1][j]=='C')||
@@ -117,33 +155,7 @@ void win(int i, int j, char movement, char game[][40]){
              cin.ignore();
              getchar();
 
-             while(true){
-                system("cls");
-                cout<<"############################\n";
-                cout<<"# Do you want to continue? #\n";
-                cout<<"# 1. Go back to the menu   #\n";
-                cout<<"# 2. Exit.                 #\n";
-                cout<<"############################\n";
-                cin>>opt;
-                    if(opt==2){
-                        cout<<"Goodbye traveler, see you soon.";
-                        getchar();
-                        exit(0);
-                    }
-                    else if(opt==1){
-                        cout<<"Going back";
-                        system("cls");
-                        menu();
-                        break;
-                    }
-                    else{
-                        system("cls");
-                        cout<<"##################\n";
-                        cout<<"# Invalid option #\n";
-                        cout<<"##################\n";
-                        getchar();
-                    }
-             }
+             exit_m();
         }
         else if(mode==2){
             if(cnt_mv<=10){point+=1000;}
@@ -178,7 +190,8 @@ void lose(Player loser){
         cout<<"############\n";
         cout<<"Press enter to exit...";
         getchar();
-        exit(0);
+        
+        exit_m();
     }
 }
 
@@ -406,7 +419,11 @@ void save_s(){
     save.open("stats.txt");
 
     save<<"Wins: "<<win_s<<endl;
-    save<<"Loses: "<<lose_s;
+    save<<"Loses: "<<lose_s<<endl;
+
+    if(point>=temp_s){
+        save<<"MAX: "<<point;
+    } 
 
     save.close();
 }
@@ -477,6 +494,7 @@ void first_opt(char game[][40]){
 }
 
 void history(){
+    system("cls");
     cout<<"###################################\n";
     cout<<"# -One day the monsters attacked- #\n";
     cout<<"#                                 #\n";
@@ -544,6 +562,7 @@ void history(){
 void menu(){
     int opt;
 
+    system("cls");
     cout<<"#############################\n";
     cout<<"#                           #\n";
     cout<<"#           DnD game        #\n";
@@ -589,6 +608,7 @@ void menu(){
                 system("cls");
                 read_s();
                 system("pause");
+                menu();
             break;
 
             case 4:
