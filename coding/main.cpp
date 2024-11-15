@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -174,6 +175,9 @@ void load_i(){
         if(type=="lives"){
             player_s.lives=value;
         }
+        if(type=="mode"){
+            mode=value;
+        }
     }
 
     load.close();
@@ -198,7 +202,8 @@ void save_i(){
     save.open("info.txt");
 
     save<<"health"<<" "<<player_s.health<<endl;
-    save<<"lives"<<"  "<<player_s.lives;
+    save<<"lives"<<"  "<<player_s.lives<<endl;
+    save<<"mode"<<" "<<mode<<endl;
 
     save.close();
 }
@@ -227,15 +232,21 @@ void print(char game[][40]){
     }
 }
 
-void win(int i, int j, char movement, char game[][40]){
+void win(int i, int j, char movement, char game[][40], sf::Music& music){
 
     sf::Text text;
     sf::Event event;
+    sf::Music music_w;
     
     if((movement=='R' && j<39 && game[i][j+1]=='C')||
        (movement=='L' && j>0 && game[i][j-1]=='C')||
        (movement=='U' && i>0 && game[i-1][j]=='C')||
        (movement=='D' && i<19 && game[i+1][j]=='C')){
+
+        music_w.openFromFile("win.ogg");
+        music_w.play();
+
+         music.stop();
 
         if(mode==1){
             win_s++;
@@ -248,6 +259,7 @@ void win(int i, int j, char movement, char game[][40]){
                     }
                     if(event.type==sf::Event::KeyPressed){
                         if(event.key.code==sf::Keyboard::Enter){
+                            music_w.stop();
                             exit_message();
                         }
                     }
@@ -305,6 +317,10 @@ void win_hp(int i, int j, char movement, char game[][40]){
 
     sf::Text text;
     sf::Event event;
+    sf::Music music;
+
+    music.openFromFile("potion.ogg");
+    music.play();
 
     verify_font();
 
@@ -346,14 +362,14 @@ void win_hp(int i, int j, char movement, char game[][40]){
        }
 }
 
-void lose(Player loser){
+void lose(Player loser, sf::Music& music){
     sf::Text text;
     sf::Event event;
 
     verify_font();
 
     if(loser.lives==0){
-
+        music.stop();
         lose_s++;
         save_s();
 
@@ -388,14 +404,14 @@ void lose(Player loser){
     }
 }
 
-void restore_hp(){
+void restore_hp(sf::Music& music){
     sf::Text text;
     sf::Event event;
 
     player_s.lives-=1;
     player_s.health=100;
 
-    lose(player_s);
+    lose(player_s,music);
 
     vector<string> message={
         "You've lost one live. "+to_string(player_s.lives)+" remaining",
@@ -427,10 +443,15 @@ void restore_hp(){
     }
 }
 
-void lose_hp(char type){
+void lose_hp(char type, sf::Music& music){
     int hp_lost=0;
     sf::Text text;
     sf::Event event;
+    sf::Music music_l;
+
+    music_l.openFromFile("Damage.ogg");
+    music_l.play();
+
 
     verify_font();
 
@@ -443,7 +464,7 @@ void lose_hp(char type){
                 player_s.health-=hp_lost;
 
                 if(player_s.health<=0){
-                    restore_hp();
+                    restore_hp(music);
                 }
                 else{
                     vector<string>message={"You've lost: "+to_string(hp_lost), 
@@ -478,7 +499,7 @@ void lose_hp(char type){
         }
 }
 
-void monster_mov(int player_i, int player_j, char game[][40]){
+void monster_mov(int player_i, int player_j, char game[][40], sf::Music& music){
     int i,j;
         for(i=0; i<20; i++){
             for(j=0; j<40; j++){
@@ -507,7 +528,7 @@ void monster_mov(int player_i, int player_j, char game[][40]){
 
                     if(new_i==player_i && new_j==player_j){
                         game[new_i][new_j]='P';
-                        lose_hp(type);
+                        lose_hp(type,music);
                     }
                     else if(game[new_i][new_j]=='H'){
                         game[i][j]=type;
@@ -524,7 +545,7 @@ void monster_mov(int player_i, int player_j, char game[][40]){
         }
 }
 
-void mov(char movement, char game[][40]){
+void mov(char movement, char game[][40], sf::Music& music){
     int i,j;
     char type = ' ';
     for(i=0;i<20;i++){
@@ -537,9 +558,9 @@ void mov(char movement, char game[][40]){
 
                 point+=10;
                 cnt_mv++;
-                lose_hp(type);
+                lose_hp(type,music);
                 win_hp(i,j,movement,game);
-                win(i,j,movement, game);
+                win(i,j,movement, game, music);
 
                 game[i][j]=' ';
                      if(movement=='R' && j<39 && game[i][j+1]!='#'){j=j+1;}
@@ -851,8 +872,14 @@ void menu(){
     }
 }
 
-void game_w(char game[][40]){
+void game_w(char game[][40],sf::Music& music){
     verify_font();
+
+    music.openFromFile("MLP.ogg");
+    music.setVolume(50);
+
+    music.play();
+    music.setLoop(true);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -863,18 +890,21 @@ void game_w(char game[][40]){
 
             // Manejo de las teclas para mover al jugador
             if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::D) {mov('R', game);} 
-                else if (event.key.code == sf::Keyboard::A) {mov('L', game);} 
-                else if (event.key.code == sf::Keyboard::W) {mov('U', game);} 
-                else if (event.key.code == sf::Keyboard::S) {mov('D', game);} 
-                else if (event.key.code == sf::Keyboard::X) {menu();}
+                if (event.key.code == sf::Keyboard::D) {mov('R', game, music);} 
+                else if (event.key.code == sf::Keyboard::A) {mov('L', game, music);} 
+                else if (event.key.code == sf::Keyboard::W) {mov('U', game, music);} 
+                else if (event.key.code == sf::Keyboard::S) {mov('D', game, music);} 
+                else if (event.key.code == sf::Keyboard::X) {
+                        music.stop();
+                        menu();
+                    }
                 else if (event.key.code == sf::Keyboard::O) {menu_options(game);}
             
                 if((event.key.code==sf::Keyboard::W)||
                 (event.key.code==sf::Keyboard::A)||
                 (event.key.code==sf::Keyboard::S)||
                 (event.key.code==sf::Keyboard::D)){
-                    monster_mov(player_i, player_j, game);
+                    monster_mov(player_i, player_j, game, music);
                 }
             }
         }
@@ -893,22 +923,34 @@ void game_w(char game[][40]){
                 window.draw(tileText);
             }
         }
-
         window.display();
     }
 }
 
 void gameshow_s(){
     char game_s[20][40];
+    sf::Music music;
+    music.openFromFile("C:\\Users\\Camilo Rios\\Downloads\\MLP.ogg");
+    music.setVolume(50);
+
+    music.play();
+    music.setLoop(true);
+
     load_m(game_s);
     load_i();
-    game_w(game_s);
+    game_w(game_s,music);
 }
 
 void gameshow(){
+    sf::Music music;
+    music.openFromFile("C:\\Users\\Camilo Rios\\Downloads\\MLP.ogg");
+    music.setVolume(50);
+
+    music.play();
+    music.setLoop(true);
     char game[20][40];
     game_f(Monster_b, Monster_s, Chest, Player_p, Potion, game);
-    game_w(game);
+    game_w(game,music);
 }
 
 int main() {
