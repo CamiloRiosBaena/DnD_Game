@@ -98,12 +98,7 @@ void read_s(){
                 window.close();
             }
             if(event.type==sf::Event::KeyPressed){
-                if(event.key.code==sf::Keyboard::Enter){
-                    i++;
-                    if(i>=message.size()){
-                        menu();
-                    }
-                }
+                if(event.key.code==sf::Keyboard::Enter){menu();}
             }
         }
 
@@ -111,7 +106,7 @@ void read_s(){
 
         text.setFont(font);
         text.setCharacterSize(24);
-        text.setString(message[i]);
+        text.setString(message[0]+"\n"+message[1]+"\n"+message[2]);
 
         center_text(text); 
 
