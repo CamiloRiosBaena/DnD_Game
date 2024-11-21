@@ -178,6 +178,9 @@ void load_i(){
         if(type=="mode"){
             mode=value;
         }
+        if(type=="points"){
+            point=value;
+        }
     }
 
     load.close();
@@ -204,6 +207,7 @@ void save_i(){
     save<<"health"<<" "<<player_s.health<<endl;
     save<<"lives"<<"  "<<player_s.lives<<endl;
     save<<"mode"<<" "<<mode<<endl;
+    save<<"points"<<" "<<point;
 
     save.close();
 }
@@ -332,7 +336,9 @@ void win_hp(int i, int j, char movement, char game[][40]){
         if(player_s.health<75){player_s.health+=50;}
         else{player_s.health+=25;}
 
-            vector<string>message={"You've won 50 hp",
+            vector<string>message_1={"You've won 50 hp",
+                                   "Your current Hp is "+to_string(player_s.health)};
+            vector<string>message_2={"You've won 25 hp",
                                    "Your current Hp is "+to_string(player_s.health)};
             int messageindex=0;
 
@@ -347,12 +353,14 @@ void win_hp(int i, int j, char movement, char game[][40]){
                         }
                     }
                 }
-                if(messageindex >= message.size()){break;}
+                if(messageindex >= message_1.size()){break;}
                 window.clear();
 
                 text.setFont(font);
                 text.setCharacterSize(24);
-                text.setString(message[messageindex]);
+                
+                if(player_s.health<=50){text.setString(message_1[messageindex]);}
+                else{text.setString(message_2[messageindex]);}
 
                 center_text(text); 
 
@@ -623,7 +631,8 @@ void new_history(){
                 "#             M                     M    m      #\n"
                 "#      m       MM        MM                 #\n"
                 "#                     MMM          m          #\n"
-                "############################\n",
+                "############################\n\n\n"
+                "Press enter to continue...",
 
                 "#####################################################\n"
                 "# -You as the last of your kind, had to look out for the magic chest-   #\n"
@@ -636,7 +645,8 @@ void new_history(){
                 "#                                                           G         G                             #\n"
                 "#                                                              GGG                                 #\n"
                 "#                                                                                                       #\n"
-                "####################################################\n",
+                "####################################################\n\n\n"
+                "Press enter to continue...",
 
                 "####################################################\n"
                 "# -On your journey you will find healing potionts that will restor-       #\n"
@@ -648,12 +658,14 @@ void new_history(){
                 "#                                               H                                                    #\n"
                 "#                                                     H                                              #\n"
                 "#                                                                                                     #\n"
-                "####################################################\n",
+                "####################################################\n\n\n"
+                "Press enter to continue...",
 
                 "##########################################\n"
                 "# -Be cautious on your steps, monsters can be tricky- #\n"
                 "# -they may attack you twice in a row so be careful-   #\n"
-                "##########################################\n",
+                "##########################################\n\n\n"
+                "Press enter to continue...",
 
                 "##################\n"
                 "# -D to move right-     #\n"
@@ -663,7 +675,8 @@ void new_history(){
                 "#                                #\n"
                 "# -X main menu-        #\n"
                 "# -O to options-          #\n"
-                "##################\n"
+                "##################\n\n\n"
+                "Press enter to continue..."
 
     };
 
@@ -875,7 +888,7 @@ void menu(){
 void game_w(char game[][40],sf::Music& music){
     verify_font();
 
-    music.openFromFile("MLP.ogg");
+    music.openFromFile("back.ogg");
     music.setVolume(50);
 
     music.play();
@@ -896,6 +909,7 @@ void game_w(char game[][40],sf::Music& music){
                 else if (event.key.code == sf::Keyboard::S) {mov('D', game, music);} 
                 else if (event.key.code == sf::Keyboard::X) {
                         music.stop();
+                        point=0;
                         menu();
                     }
                 else if (event.key.code == sf::Keyboard::O) {menu_options(game);}
@@ -930,7 +944,7 @@ void game_w(char game[][40],sf::Music& music){
 void gameshow_s(){
     char game_s[20][40];
     sf::Music music;
-    music.openFromFile("C:\\Users\\Camilo Rios\\Downloads\\MLP.ogg");
+    music.openFromFile("back.ogg");
     music.setVolume(50);
 
     music.play();
@@ -943,11 +957,12 @@ void gameshow_s(){
 
 void gameshow(){
     sf::Music music;
-    music.openFromFile("C:\\Users\\Camilo Rios\\Downloads\\MLP.ogg");
+    music.openFromFile("back.ogg");
     music.setVolume(50);
 
     music.play();
     music.setLoop(true);
+    
     char game[20][40];
     game_f(Monster_b, Monster_s, Chest, Player_p, Potion, game);
     game_w(game,music);
